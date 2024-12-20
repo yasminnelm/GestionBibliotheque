@@ -2,51 +2,55 @@ package com.library.service;
 
 import com.library.dao.StudentDAO;
 import com.library.model.Student;
-import java.sql.SQLException;
+
 import java.util.List;
 
 public class StudentService {
-    private StudentDAO studentDAO;
+    private final StudentDAO studentDAO;
 
     public StudentService() {
-    this.studentDAO = new StudentDAO();
-}
-
-    // Constructeur
-    public StudentService(StudentDAO studentDAO) {
-        this.studentDAO = studentDAO;
+        this.studentDAO = new StudentDAO();
     }
 
-    
-
-    // Ajouter un étudiant
     public void addStudent(Student student) {
+        studentDAO.addStudent(student);
+    }
+    public void addStudent(int id, String name, String email) {
+        Student student = new Student(id, name, email);
+        studentDAO.addStudent(student);
+    }
+    public void deleteAllStudents() {
         try {
-            studentDAO.addStudent(student);
-        } catch (SQLException e) {
-            System.err.println("Erreur lors de l'ajout de l'étudiant : " + e.getMessage());
+            studentDAO.deleteAllStudents();
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la suppression de tous les étudiants : " + e.getMessage());
         }
     }
-
-    // Afficher tous les étudiants
     public void displayStudents() {
-        try {
-            List<Student> students = studentDAO.getAllStudents();
+        List<Student> students = studentDAO.getAllStudents();
+        if (students.isEmpty()) {
+            System.out.println("Aucun étudiant inscrit.");
+        } else {
             for (Student student : students) {
-                System.out.println("ID: " + student.getId() + " | Nom: " + student.getName());
+                System.out.println(student.getName());
             }
-        } catch (SQLException e) {
-            System.err.println("Erreur lors de l'affichage des étudiants : " + e.getMessage());
         }
     }
+    public void updateStudent(int id, String name, String email) {
+        Student student = studentDAO.getStudentById(id).orElseThrow(() -> new RuntimeException("Student not found"));
+        student.setName(name);
+        student.setEmail(email);
+        studentDAO.updateStudent(student);
+    }
+    public void deleteStudent(int id) {
+        studentDAO.deleteStudent(id);
+    }
 
-    // Trouver un étudiant par ID
+    public void getAllStudents() {
+        studentDAO.getAllStudents();
+    }
+
     public Student findStudentById(int id) {
-        try {
-            return studentDAO.getStudentById(id);
-        } catch (SQLException e) {
-            System.err.println("Erreur lors de la recherche de l'étudiant par ID : " + e.getMessage());
-        }
-        return null;
+        return studentDAO.findStudentById(id);
     }
 }

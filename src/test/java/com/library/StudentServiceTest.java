@@ -1,4 +1,4 @@
-package com.library.test;
+package com.library;
 
 import com.library.dao.StudentDAO;
 import com.library.model.Student;
@@ -15,7 +15,8 @@ class StudentServiceTest {
     @BeforeEach
     void setUp() {
         studentDAO = new StudentDAO();
-        studentService = new StudentService(studentDAO);
+        studentService = new StudentService();
+        studentDAO.deleteAllStudents();
     }
 
     @Test

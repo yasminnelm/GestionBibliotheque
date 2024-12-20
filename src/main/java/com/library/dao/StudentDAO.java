@@ -1,80 +1,109 @@
 package com.library.dao;
 
 import com.library.model.Student;
+import com.library.util.DbConnection;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class StudentDAO {
-    private final Connection connection;
-    private static final Logger LOGGER = Logger.getLogger(StudentDAO.class.getName());
 
-    public StudentDAO(Connection connection) {
-        this.connection = connection;
-    }
-
+    // Méthode pour ajouter un étudiant
     public void addStudent(Student student) {
-        String query = "INSERT INTO students (id, name) VALUES (?, ?)";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, student.getId());
-            statement.setString(2, student.getName());
-            statement.executeUpdate();
+        String query = "INSERT INTO students (name, email,id) VALUES (?, ?,?)";
+        try (Connection conn = DbConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, student.getName());
+            stmt.setString(2, student.getEmail());
+            stmt.setInt(3,student.getId());
+            stmt.executeUpdate();
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Erreur lors de l'ajout de l'étudiant", e);
+            e.printStackTrace();
         }
     }
-
-    public Student getStudentById(int id) {
-        String query = "SELECT * FROM students WHERE id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, id);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return new Student(resultSet.getInt("id"), resultSet.getString("name"));
-                } else {
-                    LOGGER.log(Level.WARNING, "Aucun étudiant trouvé avec l'ID : " + id);
-                }
-            }
+    // Méthode pour mettre à jour un étudiant
+    public void updateStudent(Student student) {
+        String query = "UPDATE students SET name = ?, email = ? WHERE id = ?";
+        try (Connection conn = DbConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, student.getName());
+            stmt.setString(2, student.getEmail());
+            stmt.setInt(3, student.getId());
+            stmt.executeUpdate();
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Erreur lors de la récupération de l'étudiant", e);
+            e.printStackTrace();
         }
-        return null;
     }
-
     public List<Student> getAllStudents() {
         List<Student> students = new ArrayList<>();
-        String query = "SELECT * FROM students";
-        try (PreparedStatement statement = connection.prepareStatement(query);
-             ResultSet resultSet = statement.executeQuery()) {
+        String sql = "SELECT * FROM students";
+        try (Connection connection = DbConnection.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
             while (resultSet.next()) {
                 students.add(new Student(resultSet.getInt("id"), resultSet.getString("name")));
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Erreur lors de la récupération des étudiants", e);
+            e.printStackTrace();
         }
         return students;
     }
 
-    public void updateStudent(Student student) {
-        String query = "UPDATE students SET name = ? WHERE id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, student.getName());
-            statement.setInt(2, student.getId());
-            statement.executeUpdate();
+    public Student findStudentById(int id) {
+        String sql = "SELECT * FROM students WHERE id = ?";
+        try (Connection connection = DbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return new Student(resultSet.getInt("id"), resultSet.getString("name"));
+            }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Erreur lors de la mise à jour de l'étudiant", e);
+            e.printStackTrace();
         }
+        return null;
     }
-
+    // Méthode pour obtenir un étudiant par ID
+    public Optional<Student> getStudentById(int id) {
+        String query = "SELECT * FROM students WHERE id = ?";
+        try (Connection conn = DbConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Student student = new Student(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("email")
+                );
+                return Optional.of(student);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+    // Méthode pour supprimer un étudiant
     public void deleteStudent(int id) {
         String query = "DELETE FROM students WHERE id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, id);
+        try (Connection conn = DbConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void deleteAllStudents() {
+        String query = "DELETE FROM students";
+        try (PreparedStatement statement = DbConnection.getConnection().prepareStatement(query)) {
             statement.executeUpdate();
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Erreur lors de la suppression de l'étudiant", e);
+            System.out.println("Erreur");
         }
     }
 }

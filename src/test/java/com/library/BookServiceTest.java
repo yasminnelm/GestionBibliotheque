@@ -1,21 +1,27 @@
-package com.library.test;
+package com.library;
 
 import com.library.dao.BookDAO;
 import com.library.model.Book;
 import com.library.service.BookService;
+import com.library.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class BookServiceTest {
     private BookService bookService;
-    private BookDAO bookDAO;
+    private BookDAO bookDAO ;
+    private StudentService studentService=new StudentService();
 
     @BeforeEach
     void setUp() {
         bookDAO = new BookDAO();
-        bookService = new BookService(bookDAO);
+        bookService = new BookService();
+        bookDAO.deleteAll();
+        studentService.deleteAllStudents();
     }
 
     @Test
@@ -28,11 +34,11 @@ class BookServiceTest {
 
     @Test
     void testUpdateBook() {
-        Book book = new Book(1, "Java Programming", "John Doe", true);
+        Book book = new Book(2, "Java Programming", "John Doe", true);
         bookService.addBook(book);
-        bookService.updateBook(1, "Advanced Java", "Jane Doe", false);
-        assertEquals("Advanced Java", bookDAO.getBookById(1).get().getTitle());
-        assertFalse(bookDAO.getBookById(1).get().isAvailable());
+        bookService.updateBook(2, "Advanced Java", "Jane Doe", false);
+        assertEquals("Advanced Java", bookDAO.getBookById(2).get().getTitle());
+        assertFalse(bookDAO.getBookById(2).get().isAvailable());
     }
 
     @Test
@@ -42,4 +48,13 @@ class BookServiceTest {
         bookService.deleteBook(1);
         assertTrue(bookDAO.getBookById(1).isEmpty());
     }
+    @Test
+    void testSearchBooksByTitle() {
+        bookDAO.addBook(new Book(1, "Java Programming", "John Doe", true));
+        bookDAO.addBook(new Book(2, "Advanced Java", "Jane Doe", true));
+        List<Book> results = bookService.searchBooksByTitle("Java");
+        assertEquals(2, results.size());
+        assertEquals("Java Programming", results.get(0).getTitle());
+    }
+
 }

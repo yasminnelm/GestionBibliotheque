@@ -1,42 +1,49 @@
 package com.library.service;
-import com.library.dao.BookDAO; // Importation de BookDAO
-import com.library.model.Book;   // Importation de Book
+
+import com.library.dao.BookDAO;
+import com.library.model.Book;
+
 import java.util.List;
 
-
 public class BookService {
-    private BookDAO bookDAO;  // Utilisation de DAO pour la gestion des livres
+    private final BookDAO bookDAO;
 
-    // Constructeur qui initialise l'objet BookDAO
     public BookService() {
         this.bookDAO = new BookDAO();
     }
-
-    // Ajouter un livre
+    public String deleteAllBooks() {
+        return bookDAO.deleteAll();
+    }
     public void addBook(Book book) {
-        bookDAO.add(book);
+        bookDAO.addBook(book);
     }
 
-    // Afficher tous les livres
     public void displayBooks() {
         List<Book> books = bookDAO.getAllBooks();
-        for (Book book : books) {
-            System.out.println(book);
+        if (books.isEmpty()) {
+            System.out.println("Aucun livre dans la bibliothèque.");
+        } else {
+            for (Book book : books) {
+                System.out.println(book.getTitle() + " - " + book.getAuthor());
+            }
         }
     }
 
-    // Trouver un livre par ID
     public Book findBookById(int id) {
-        return bookDAO.getBookById(id);
+        return bookDAO.findBookById(id);
+    }
+    public void updateBook(int id, String title, String author, boolean available) {
+        Book book = bookDAO.getBookById(id).orElseThrow(() -> new RuntimeException("Book not found"));
+        book.setTitle(title);
+        book.setAuthor(author);
+        book.setAvailable(available);
+        bookDAO.updateBook(book);
+    }
+    public List<Book> searchBooksByTitle(String title) {
+        return bookDAO.findBooksByTitle(title);
     }
 
-    // Supprimer un livre par ID
     public void deleteBook(int id) {
-        bookDAO.delete(id);
-    }
-
-    // Mise à jour des informations d'un livre
-    public void updateBook(Book book) {
-        bookDAO.update(book);
+        bookDAO.deleteBook(id);
     }
 }

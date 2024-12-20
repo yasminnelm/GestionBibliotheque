@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BookService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mon-projet</a> &gt; <a href="index.source.html" class="el_package">com.library.service</a> &gt; <span class="el_source">BookService.java</span></div><h1>BookService.java</h1><pre class="source lang-java linenums">package com.library.service;
+
+import com.library.dao.BookDAO;
+import com.library.model.Book;
+
+import java.util.List;
+
+public class BookService {
+    private final BookDAO bookDAO;
+
+<span class="fc" id="L11">    public BookService() {</span>
+<span class="fc" id="L12">        this.bookDAO = new BookDAO();</span>
+<span class="fc" id="L13">    }</span>
+    public String deleteAllBooks() {
+<span class="nc" id="L15">        return bookDAO.deleteAll();</span>
+    }
+    public void addBook(Book book) {
+<span class="fc" id="L18">        bookDAO.addBook(book);</span>
+<span class="fc" id="L19">    }</span>
+
+    public void displayBooks() {
+<span class="nc" id="L22">        List&lt;Book&gt; books = bookDAO.getAllBooks();</span>
+<span class="nc bnc" id="L23" title="All 2 branches missed.">        if (books.isEmpty()) {</span>
+<span class="nc" id="L24">            System.out.println(&quot;Aucun livre dans la bibliothèque.&quot;);</span>
+        } else {
+<span class="nc bnc" id="L26" title="All 2 branches missed.">            for (Book book : books) {</span>
+<span class="nc" id="L27">                System.out.println(book.getTitle() + &quot; - &quot; + book.getAuthor());</span>
+<span class="nc" id="L28">            }</span>
+        }
+<span class="nc" id="L30">    }</span>
+
+    public Book findBookById(int id) {
+<span class="nc" id="L33">        return bookDAO.findBookById(id);</span>
+    }
+    public void updateBook(int id, String title, String author, boolean available) {
+<span class="pc" id="L36">        Book book = bookDAO.getBookById(id).orElseThrow(() -&gt; new RuntimeException(&quot;Book not found&quot;));</span>
+<span class="fc" id="L37">        book.setTitle(title);</span>
+<span class="fc" id="L38">        book.setAuthor(author);</span>
+<span class="fc" id="L39">        book.setAvailable(available);</span>
+<span class="fc" id="L40">        bookDAO.updateBook(book);</span>
+<span class="fc" id="L41">    }</span>
+    public List&lt;Book&gt; searchBooksByTitle(String title) {
+<span class="fc" id="L43">        return bookDAO.findBooksByTitle(title);</span>
+    }
+
+    public void deleteBook(int id) {
+<span class="fc" id="L47">        bookDAO.deleteBook(id);</span>
+<span class="fc" id="L48">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
