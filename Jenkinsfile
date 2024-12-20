@@ -2,6 +2,8 @@ pipeline {
     agent any
     environment {
         MAVEN_HOME = tool 'Maven'
+        SONAR_PROJECT_KEY = 'GestionBibliotheque'
+        SONAR_SCANNER_HOME = tool 'SonarQubeScanner'
     }
     stages {
         stage('Checkout') {
